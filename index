@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한여름 밤의 학교: 나의 MBTI 찾기</title>
+    <style>
+        /* 기본 청량/화려 폰트 및 스타일 세팅 */
+        @import url('https://fonts.googleapis.com/css2?family=Gamja+Flower&family=Noto+Sans+KR:wght@400;700&display=swap');
+
+        :root {
+            --bg-gradient: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            --ocean-blue: #0072ff;
+            --mint-glow: #00f2fe;
+            --sparkle-yellow: #fff700;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans KR', sans-serif;
+            background: linear-gradient(-45deg, #00c6ff, #0072ff, #00f2fe, #4facfe);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: #1a3038;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* 반짝이 효과 배경 배경 */
+        .sparkles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* 컨테이너 공통 (글래스모피즘 + 영롱한 테두리) */
+        .card {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-radius: 24px;
+            padding: 30px 20px;
+            width: 90%;
+            max-width: 480px;
+            text-align: center;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2),
+                        0 0 20px rgba(0, 242, 254, 0.4);
+            z-index: 1;
+            box-sizing: border-box;
+            display: none;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .card.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-family: 'Gamja Flower', cursive;
+            font-size: 2.5rem;
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(0,242,254,0.8), 0 0 20px rgba(0,114,255,0.5);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #e0f7fa;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+
+        /* 메인 일러스트 대용 아이콘 구역 */
+        .main-icon {
+            font-size: 5rem;
+            margin: 20px 0;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* 버튼 스타일 (청량 네온) */
+        .btn {
+            background: linear-gradient(90deg, #00f2fe, #4facfe);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 242, 254, 0.4);
+            outline: none;
+            width: 100%;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+
+        .btn:hover {
+            transform: scale(1.03);
+            box-shadow: 0 6px 20px rgba(0, 242, 254, 0.7), 0 0 10px #fff;
+            background: linear-gradient(90deg, #4facfe, #00f2fe);
+        }
+
+        /* 게이지 바 */
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background-color: rgba(255,255,255,0.3);
+            border-radius: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+
+        .progress-inner {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--sparkle-yellow), #00f2fe);
+            box-shadow: 0 0 8px #00f2fe;
+            transition: width 0.4s ease;
+        }
+
+        .question-text {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #ffffff;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            margin-bottom: 40px;
+            word-break: keep-all;
+            line-height: 1.5;
+        }
+
+        /* 결과 창 전용 */
+        .result-title {
+            font-size: 1.8rem;
+            color: #fff700;
+            text-shadow: 0 0 8px rgba(255,247,0,0.6);
+            margin-top: 10px;
+        }
+        .mbti-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.9);
+            color: #0072ff;
+            padding: 5px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 2rem;
+            margin: 15px 0;
+            box-shadow: 0 0 15px rgba(255,255,255,0.8);
+        }
+        .result-desc {
+            color: #ffffff;
+            background: rgba(0, 0, 0, 0.15);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: left;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sparkles" id="sparkles"></div>
+
+    <div class="card active" id="start-card">
+        <h1>청량학교 MBTI 테스트</h1>
+        <p class="subtitle">☀️ 푸른 여름날, 나는 어떤 학생일까? 🌊</p>
+        <div class="main-icon">🐬✨</div>
+        <button class="btn" onclick="startTest()">테스트 시작하기</button>
+    </div>
+
+    <div class="card" id="question-card">
+        <div class="progress-bar">
+            <div class="progress-inner" id="progress"></div>
+        </div>
+        <div class="question-text" id="question">질문 텍스트</div>
+        <button class="btn" id="ansA" onclick="selectAnswer('A')">선택지 A</button>
+        <button class="btn" id="ansB" onclick="selectAnswer('B')">선택지 B</button>
+    </div>
+
+    <div class="card" id="result-card">
+        <h1>나의 여름 학교 유형은?</h1>
+        <div class="mbti-badge" id="result-mbti">ESTJ</div>
+        <div class="result-title" id="result-name">유형 이름</div>
+        <div class="main-icon" id="result-icon">🌴</div>
+        <div class="result-desc" id="result-desc">유형 설명</div>
+        <button class="btn" onclick="restartTest()" style="background: linear-gradient(90deg, #fff700, #ff007f); color:#000; text-shadow:none;">다시 테스트하기 🔄</button>
+    </div>
+
+    <script>
+        // 12가지 학교생활 배경 질문 데이터 (E/I, S/N, T/F, J/P)
+        const questions = [
+            { q: "드디어 무더운 여름방학 시작! 나의 계획은?", type: "EI", a: "방학인데 집에만 있을 수 없지! 친구들과 바다 가기 약속 잡기", b: "에어컨 빵빵하게 틀고 침대 위에서 밀린 넷플릭스 정주행" },
+            { q: "등굣길에 짝꿍이 '나 오늘 더위 먹은 것 같아...' 라고 한다면?", type: "TF", a: "헐 많이 더워? 양산 쓰고 다녀야겠다. 보건실 같이 가줄까?", b: "몇 도인데 그래? 물 많이 마시고 타이레놀 먹어봐" },
+            { q: "새 학기 첫날, 교실 문을 열고 들어섰을 때 나의 행동은?", type: "EI", a: "마음에 드는 자리 근처 친구에게 먼저 '안녕!' 말을 건넨다", b: "조용히 눈에 안 띄는 뒷자리 구석에 가서 앉아 폰을 본다" },
+            { q: "여름 축제 부스를 기획할 때 나는 어떤 아이디어를 낼까?", type: "SN", a: "작년에 인기 많았던 아이스 슬러시나 물풍선 던지기 부스 하자!", b: "우주 콘셉트의 암흑 카페나 타임슬립 귀신의 집 어때?" },
+            { q: "기말고사가 일주일 남았을 때 나의 공부 상태는?", type: "JP", a: "일별, 과목별로 꼼꼼하게 짜둔 플래너대로 실천하는 중", b: "시험은 원래 벼락치기지! 전날의 초사이언 집중력을 믿는다" },
+            { q: "체육대회 이어달리기 주자로 뽑혔다. 이때 내 머릿속은?", type: "SN", a: "바통 놓치지 말고 앞사람만 따라 열심히 뛰어야지!", b: "내가 뛰다가 넘어져서 바통이 날아가 관중석을 맞추면 어떡하지?" },
+            { q: "수행평가 조장을 맡게 되었다. 조원들을 이끄는 나의 방식은?", type: "JP", a: "역할 분담과 마감 기한을 확실히 정해두고 체계적으로 독려한다", b: "그때그때 생각나는 좋은 아이디어를 반영하며 자유롭게 진행한다" },
+            { q: "친구가 '나 이번 시험 열심히 준비했는데 망쳤어...'라며 울먹인다", type: "TF", a: "많이 속상하겠다... 노력한 거 내가 다 아는데 속상해 ㅠㅠ", b: "몇 점 나왔는데? 어느 파트에서 많이 틀렸어?" },
+            { q: "미술 시간에 '나만의 여름 바다'를 그리라고 한다면?", type: "SN", a: "내가 가봤던 해수욕장의 백사장과 파라솔을 사실적으로 묘사한다", b: "심해 속 전설의 고래와 유령선이 함께 있는 판타지 바다를 그린다" },
+            { q: "쉬는 시간, 매점에 아이스크림을 사러 갈 때 나는?", type: "EI", a: "교실 뒤편에서 '매점 갈 사람!!' 외치며 우르르 몰려간다", b: "친한 친구 한 명과 조용히 다녀오거나 혼자 슥 갔다 온다" },
+            { q: "내일은 신나는 현장체험학습(소풍) 가는 날!", type: "JP", a: "가방에 넣을 소지품 리스트를 체크하고 옷도 미리 코디해 둔다", b: "내일 아침에 일어나서 날씨 보고 대충 손에 잡히는 대로 챙긴다" },
+            { q: "선생님이 갑자기 '오늘 수업 일찍 끝났으니 자유시간!' 이라고 하실 때", type: "TF", a: "와 대박! 쌤 진짜 최고예요! (폭풍 리액션)", b: "오 개꿀 (자연스럽게 자거나 자습할 준비를 한다)" }
+        ];
+
+        // 16가지 mbti 결과 데이터
+        const results = {
+            "ENFJ": { name: "교내 최고 인기쟁이 학생회장", icon: "👑", desc: "청량한 여름 햇살처럼 주변을 밝히는 존재! 다정다감하고 리더십이 뛰어나 선후배 모두에게 인기가 많아요." },
+            "ENFP": { name: "축제 기획의 달인, 인간 포카리스웨트", icon: "✨", desc: "통통 튀는 아이디어와 지치지 않는 에너지를 가졌어요! 축제 시즌만 되면 세상에서 가장 행복해지는 분위기 메이커." },
+            "ENTJ": { name: "전교 1등 포스, 야망 넘치는 반장", icon: "🎯", desc: "체계적이고 단호한 카리스마의 소유자! 조별 과제나 수행평가할 때 하드캐리하며 조원들을 승리로 이끕니다." },
+            "ENTP": { name: "선생님도 못 말리는 재치 만점 만담꾼", icon: "🃏", desc: "두뇌 회전이 빠르고 말재주가 좋아요. 수업 시간에 엉뚱하지만 날카로운 질문으로 교실을 웃음바다로 만듭니다." },
+            "INFJ": { name: "비 오는 날 창밖을 보는 감성 문예부장", icon: "🔮", desc: "생각이 깊고 어른스러운 타입. 친구들의 고민을 진심으로 들어주며, 보이지 않는 곳에서 묵묵히 챙겨주는 따뜻한 사람입니다." },
+            "INFP": { name: "이어폰 끼고 만화 그리는 몽상가", icon: "🎧", desc: "나만의 감성 세계가 뚜렷한 예술가 타입. 조용하지만 내면에는 한여름의 푸른 바다보다 넓은 상상력을 품고 있어요." },
+            "INTJ": { name: "도서부 속 베일에 싸인 천재 전교 탑", icon: "👁️‍🗨️", desc: "비효율적인 것을 싫어하는 똑순이/똑돌이. 혼자 조용히 공부하는 것 같지만 시험 점수는 항상 최상위권을 유지하는 책사형." },
+            "INTP": { "name": "하루 종일 잠만 자는 천재 과학부원", icon: "🧪", desc: "쉬는 시간에도, 수업 시간에도 졸려 보이지만 관심 있는 분야의 이야기가 나오면 눈이 반짝이며 천재성을 발휘합니다." },
+            "ESFJ": { "name": "반 친구들 생일 다 챙기는 매점 요정", icon: "🍰", desc: "공감 능력이 뛰어나고 주변 사람 챙기기가 취미인 다정한 친구! 매점 갈 때 항상 친구들을 데리고 다니는 인싸입니다." },
+            "ESFP": { "name": "체육대회 응원단장, 댄스부 에이스", icon: "📣", desc: "흥이 넘치고 리액션이 최고인 학교의 아이돌! 이 친구가 없는 학교생활은 팥 없는 팥빙수와 같습니다." },
+            "ESTJ": { "name": "칼같이 규칙 지키는 선도부장", icon: "⏱️", desc: "시간 약속과 규칙을 철저히 지키는 모범생. 한여름 땡볕 아래서도 흐트러짐 없는 단정한 모습을 보여줍니다." },
+            "ESTP": { "name": "방과 후 운동장을 지배하는 체육부장", icon: "⚽", desc: "운동 신경이 좋고 겁이 없는 골목대장 타입! 매사 자신감이 넘치고 시원시원한 성격으로 친구들을 이끕니다." },
+            "ISFJ": { "name": "학급의 천사, 보건실 지킴이", icon: "👼", desc: "조용하고 성실하며 남을 배려하는 마음이 깊어요. 친구가 아프거나 도움이 필요할 때 가장 먼저 손을 내미는 든든한 조력자." },
+            "ISFP": { "name": "하굣길 꿀잠을 사랑하는 평화주의자", icon: "🎨", desc: "갈등을 싫어하고 다수 의견에 잘 맞춰주는 착한 친구. 주말이나 방학에는 침대 밖으로 절대 안 나오는 집순이/집돌이 속성 완비." },
+            "ISTJ": { "name": "노트 필기의 정석, 인간 교과서", icon: "📝", desc: "오차 없는 계획과 정돈된 필기 노트를 가진 학생. 무뚝뚝해 보이지만 맡은 일은 끝까지 책임지는 가장 신뢰할 수 있는 친구입니다." },
+            "ISTP": { "name": "자전거 타고 등교하는 쿨 가이/쿨 걸", icon: "🚲", desc: "말수가 적고 시크하지만 손재주가 좋아 고장 난 기계를 뚝딱 고쳐내는 맥가이버 학생. 은근히 츤데레 매력이 있습니다." }
+        };
+
+        let currentIdx = 0;
+        let scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+
+        // 시작 버튼 클릭 시
+        function startTest() {
+            document.getElementById('start-card').classList.remove('active');
+            document.getElementById('question-card').classList.add('active');
+            showQuestion();
+        }
+
+        // 질문 셋팅
+        function showQuestion() {
+            if (currentIdx >= questions.length) {
+                showResult();
+                return;
+            }
+            // 게이지 바 업데이트
+            const percent = (currentIdx / questions.length) * 100;
+            document.getElementById('progress').style.width = percent + '%';
+
+            // 질문 및 선택지 텍스트 세팅
+            const currentQ = questions[currentIdx];
+            document.getElementById('question').innerText = `Q${currentIdx + 1}. ${currentQ.q}`;
+            document.getElementById('ansA').innerText = currentQ.a;
+            document.getElementById('ansB').innerText = currentQ.b;
+        }
+
+        // 답변 선택 시 점수 계산
+        function selectAnswer(choice) {
+            const currentQ = questions[currentIdx];
+            const type = currentQ.type; // 예: "EI"
+
+            if (choice === 'A') {
+                scores[type[0]]++;
+            } else {
+                scores[type[1]]++;
+            }
+
+            currentIdx++;
+            showQuestion();
+        }
+
+        // 결과 도출 및 화면 전환
+        function showResult() {
+            document.getElementById('question-card').classList.remove('active');
+            document.getElementById('result-card').classList.add('active');
+
+            // MBTI 조합
+            let mbti = "";
+            mbti += (scores.E >= scores.I) ? "E" : "I";
+            mbti += (scores.S >= scores.N) ? "S" : "N";
+            mbti += (scores.T >= scores.F) ? "T" : "F";
+            mbti += (scores.J >= scores.P) ? "J" : "P";
+
+            const resultData = results[mbti];
+
+            document.getElementById('result-mbti').innerText = mbti;
+            document.getElementById('result-name').innerText = resultData.name;
+            document.getElementById('result-icon').innerText = resultData.icon;
+            document.getElementById('result-desc').innerText = resultData.desc;
+        }
+
+        // 다시 테스트하기
+        function restartTest() {
+            currentIdx = 0;
+            scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+            document.getElementById('result-card').classList.remove('active');
+            document.getElementById('start-card').classList.add('active');
+        }
+
+        // 배경에 반짝이는 별/물방울 입자 생성 스크립트
+        function createSparkles() {
+            const container = document.getElementById('sparkles');
+            const sparkleCount = 30;
+            for(let i=0; i<sparkleCount; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.style.position = 'absolute';
+                sparkle.style.background = 'rgba(255, 255, 255, 0.7)';
+                sparkle.style.borderRadius = '50%';
+                
+                // 크기 및 위치 무작위
+                const size = Math.random() * 6 + 2;
+                sparkle.style.width = size + 'px';
+                sparkle.style.height = size + 'px';
+                sparkle.style.top = Math.random() * 100 + '%';
+                sparkle.style.left = Math.random() * 100 + '%';
+                
+                // 트윙클 애니메이션
+                sparkle.style.animation = `twinkle ${Math.random() * 3 + 2}s infinite ease-in-out`;
+                sparkle.style.boxShadow = '0 0 8px #fff';
+                container.appendChild(sparkle);
+            }
+        }
+
+        // CSS 애니메이션 동적 주입 (트윙클 효과)
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes twinkle {
+                0%, 100% { opacity: 0.2; transform: scale(0.8); }
+                50% { opacity: 1; transform: scale(1.3); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // 로드 시 반짝이 입자 생성
+        window.onload = createSparkles;
+    </script>
+</body>
+</html>
